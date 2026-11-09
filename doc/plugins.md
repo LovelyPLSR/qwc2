@@ -363,6 +363,7 @@ This plugin queries the dataset via the editing service specified by
 | Property | Type | Description | Default value |
 |----------|------|-------------|---------------|
 | allowAddForGeometryLayers | `bool` | Whether to allow adding records for datasets which have a geometry column. | `undefined` |
+| autoTableLayout | `bool` | Whether to use the automatic table layout algorithm (slower). | `undefined` |
 | geometry | `{`<br />`  initialWidth: number,`<br />`  initialHeight: number,`<br />`  initialX: number,`<br />`  initialY: number,`<br />`  initiallyDocked: bool,`<br />`  side: string,`<br />`}` | Default window geometry with size, position and docking status. Positive position values (including '0') are related to top (InitialY) and left (InitialX), negative values (including '-0') to bottom (InitialY) and right (InitialX).<br />- `initialWidth`: undefined<br />- `initialHeight`: undefined<br />- `initialX`: undefined<br />- `initialY`: undefined<br />- `initiallyDocked`: undefined<br />- `side`: undefined | `{`<br />`    initialWidth: 800,`<br />`    initialHeight: 480,`<br />`    initialX: 0,`<br />`    initialY: 0,`<br />`    initiallyDocked: true,`<br />`    side: 'bottom'`<br />`}` |
 | hideIdColumn | `bool` | Whether to hide the id (primary key) column. | `undefined` |
 | limitToExtent | `bool` | Whether to limit to the extent by default. | `false` |
@@ -381,6 +382,7 @@ Invokes the the authentication service specified by `authServiceUrl` in `config.
 | Property | Type | Description | Default value |
 |----------|------|-------------|---------------|
 | clearLayerParam | `bool` | Whether to clear the layer parameter from the URL on login. | `undefined` |
+| clearUrlParams | `bool` | Whether to clear all URL parameters on login. | `undefined` |
 | idleTimeout | `number` | An idle timeout in seconds after which the user is automatically logged of. | `undefined` |
 | logoutTargetUrl | `string` | An URL to redirect to on logout, instead of the viewer URL. | `undefined` |
 | requireLogin | `bool` | Whether authentication is required, i.e. the viewer automatically redirects to the login page if no user is authenticated. | `undefined` |
@@ -949,7 +951,8 @@ Allows measuring points/lines/areas on the map.
 | lineTailMarker | `string` | Tail marker of distance line measurement geometry. Can be one of `OUTARROW`, `INARROW`, `LINE`. | `undefined` |
 | markerScale | `number` | Scale factor for all heade/tail markers. | `1` |
 | showMeasureModeSwitcher | `bool` | Whether to show the widget to switch between measure modes. | `true` |
-| showPerimeterLength | `bool` | Whether to show the perimeter length of area measurements. | `undefined` |
+| showPerimeterLength | `bool` | Whether to show the perimeter length of area measurements by default. | `undefined` |
+| showSegmentLengths | `bool` | Whether to show the segment lengths of line measurements by default. | `true` |
 | snapping | `bool` | Whether snapping is available when editing. | `true` |
 | snappingActive | `{bool, string, array}` | Whether snapping is enabled by default when editing.<br /> Either `edge`, `vertex`, `intersection`, `perpendicular`, a combination of these as an array, or `false` or `true` (i.e. all snapping modes disabled or enabled). | `true` |
 

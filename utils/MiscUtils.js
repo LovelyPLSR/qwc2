@@ -17,17 +17,18 @@ const MiscUtils = {
     appContainer(el) {
         return el?.closest?.('.plugins-container') ?? el?.ownerDocument?.body ?? document.body;
     },
-    loginUrl(clearLayerParam = false) {
+    loginUrl(clearLayerParam = false, clearUrlParams = false) {
         const target = new URL(window.location.href);
-        if (clearLayerParam) {
+        if (clearUrlParams) {
+            target.search = "";
+        } else if (clearLayerParam) {
             target.searchParams.delete('l');
         }
         return ConfigUtils.getConfigProp("authServiceUrl") + "login?url=" + encodeURIComponent(target.href);
     },
     addLinkAnchors(text) {
-        // If text already contains tags, do nothing
-        const tagRegEx = /(<.[^(><.)]+>)/;
-        if (tagRegEx.exec(text)) {
+        // If text starts with a tag, do nothing
+        if (/^<\w[^>]*>/.test(text)) {
             return text;
         }
         const urlRegEx = new RegExp(
@@ -357,6 +358,25 @@ export class ToggleSet {
     entries = () => {
         return [...this._set];
     };
+}
+
+export class Memoizer {
+    constructor() {
+        this.cache = {};
+    }
+    memoize(key, params, objectBuilder) {
+        const cached = this.cache[key];
+        if (
+            cached &&
+            Object.keys(params).length === Object.keys(cached.params).length &&
+            Object.entries(params).every(([pkey, pval]) => cached.params[pkey] === pval)
+        ) {
+            return cached.object;
+        }
+
+        this.cache[key] = {params, object: objectBuilder()};
+        return this.cache[key].object;
+    }
 }
 
 export default MiscUtils;

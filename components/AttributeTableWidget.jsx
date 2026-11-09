@@ -50,6 +50,8 @@ class AttributeTableWidget extends React.Component {
         addLayerFeatures: PropTypes.func,
         /** Whether to allow adding records for datasets which have a geometry column. */
         allowAddForGeometryLayers: PropTypes.bool,
+        /** Whether to use the automatic table layout algorithm (slower). */
+        autoTableLayout: PropTypes.bool,
         editConfigs: PropTypes.object,
         filter: PropTypes.object,
         /** Whether to hide the id (primary key) column. */
@@ -196,6 +198,7 @@ class AttributeTableWidget extends React.Component {
         const editing = this.state.changedFeatureIdx !== null;
         const selectionEmpty = isEmpty(this.state.selectedFeatures);
         const showIdColumn = !this.props.showDisplayFieldOnly && !this.props.hideIdColumn;
+        const tableLayoutStyle = {tableLayout: this.props.autoTableLayout ? 'auto' : 'fixed'};
 
         let loadOverlay = null;
         if (loading) {
@@ -233,6 +236,7 @@ class AttributeTableWidget extends React.Component {
                     selection={this.state.selectedFeatures}
                     selectionChanged={this.setSelectedFeatures}
                     showColumnFilters={!this.state.selectedOnly && this.props.showColumnFilters}
+                    style={tableLayoutStyle}
                 />
             );
             const npages = Math.ceil(this.state.totFeatureCount / this.state.pageSize);
@@ -345,8 +349,8 @@ class AttributeTableWidget extends React.Component {
             })
         )).flat().filter(Boolean).sort((a, b) => a.title.localeCompare(b.title));
         const pickButtons = [
-            {key: 'Point', icon: 'pick_point', title: LocaleUtils.tr("attribtable.selectatpoint")},
-            {key: 'Polygon', icon: 'pick_region', title: LocaleUtils.tr("attribtable.selectinregion")}
+            {key: 'Point', icon: 'pick_point', tooltip: LocaleUtils.tr("attribtable.selectatpoint")},
+            {key: 'Polygon', icon: 'pick_region', tooltip: LocaleUtils.tr("attribtable.selectinregion")}
         ];
         return (
             <div className="AttributeTable">
@@ -491,9 +495,9 @@ class AttributeTableWidget extends React.Component {
             const precision = constraints.prec ?? 0;
             const step = constraints.step ?? 1;
             input = (
-                <NumberInput decimals={precision} disabled={disabled} fitParent max={constraints.max} min={constraints.min}
+                <NumberInput decimals={precision} disabled={disabled} fitParent hideArrows max={constraints.max} min={constraints.min}
                     name={field.id} onChange={v => updateField(field.id, v, true)}
-                    readOnly={constraints.readOnly} required={constraints.required} step={step} value={value} />
+                    readOnly={constraints.readOnly} required={constraints.required} step={step} title={value} value={value} />
             );
         } else if (field.type === "date") {
             // Truncate time portion of ISO date string
@@ -501,7 +505,7 @@ class AttributeTableWidget extends React.Component {
             input = (
                 <input disabled={disabled} name={field.id} type={field.type} {...constraints}
                     onChange={(ev) => updateField(field.id, ev.target.value, true)}
-                    value={value} />
+                    title={value} value={value} />
             );
         } else if (field.type === "file") {
             return (<EditUploadField constraints={constraints} dataset={editConfig.editDataset} disabled={disabled} fieldId={field.id} iface={this.props.iface} name={field.id} showThumbnails={false} updateField={updateField} updateFile={(fieldId, data) => {this.changedFiles[fieldId] = data; }} value={value} />);
@@ -519,7 +523,7 @@ class AttributeTableWidget extends React.Component {
             const editTextNullValue = ConfigUtils.getConfigProp("editTextNullValue");
             input = (
                 <TextInput addLinkAnchors={addLinkAnchors} clearValue={editTextNullValue} disabled={disabled} multiline={constraints.multiline} name={field.id}
-                    onChange={updateTextField} required={constraints.required} value={String(value)} />
+                    onChange={updateTextField} required={constraints.required} title={String(value)} value={String(value)} />
             );
         } else {
             input = (

@@ -270,7 +270,7 @@ const IdentifyUtils = {
                 }
                 item.clickPos = clickPoint;
                 item.displayname = IdentifyUtils.determineDisplayName(layer, layername, item);
-                item.layertitle = item.layertitle ?? layername;
+                item.layertitle = item.layertitle ?? LayerUtils.searchSubLayer(layer, 'name', item.layername)?.title ?? item.layername;
                 item.wms_name = layer.wms_name;
             }
         }
@@ -292,8 +292,9 @@ const IdentifyUtils = {
         const fallbackDisplayFields = ConfigUtils.getConfigProp("fallbackDisplayFields", null, ["name", "id"]).map(field => field.toLowerCase());
         const propertyCaseMap = Object.keys(properties).reduce((res, key) => ({...res, [key.toLowerCase()]: key}), {});
         for (const field of fallbackDisplayFields) {
-            if (field in propertyCaseMap) {
-                return properties[propertyCaseMap[field]];
+            const value = properties[propertyCaseMap[field]];
+            if (value) {
+                return value;
             }
         }
         return item.id ?? "";
@@ -394,8 +395,12 @@ const IdentifyUtils = {
     parseGeoJSONResponse(response, geometrycrs, layer) {
         const result = {};
         (response.features || []).map(feature => {
-            // Deduce layer name as far as possible from feature id
-            const id = feature.id || (feature.properties || {}).OBJECTID || uuidv4();
+            // qwc-ogc-service returns layername/layertitle, QGIS returns id=<layername>.<id>
+            const idparts = feature.id.split('.').reverse();
+            const layername = feature.layername ?? idparts[1] ?? layer.name;
+            const layertitle = feature.layertitle ?? idparts[1] ?? layer.title;
+
+            const id = idparts[0];
             if (result[layer.name] === undefined) {
                 result[layer.name] = [];
             }
@@ -408,8 +413,8 @@ const IdentifyUtils = {
                 ...feature,
                 id: id,
                 geometry: geometry,
-                layername: layer.name,
-                layertitle: layer.title
+                layername: layername,
+                layertitle: layertitle
             });
         });
         return result;
